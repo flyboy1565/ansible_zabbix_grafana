@@ -1,0 +1,11 @@
+FROM python:3.11.4-alpine3.18
+
+RUN mkdir /app
+COPY . /app
+
+WORKDIR /app
+
+RUN pip install -e .
+
+
+CMD ["litestar", "run", "--reload", "--host", "0.0.0.0"]
