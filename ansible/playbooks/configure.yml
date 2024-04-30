@@ -1,0 +1,5 @@
+---
+- hosts: webapps
+  roles:
+    - ansible_user
+    - webapp

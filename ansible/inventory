@@ -1,0 +1,4 @@
+[webapps]
+ansible_zabbix_grafana_webapp1 ansible_connection=docker
+ansible_zabbix_grafana_webapp2 ansible_connection=docker
+
