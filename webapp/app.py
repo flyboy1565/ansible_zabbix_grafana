@@ -1,9 +1,17 @@
 from dataclasses import dataclass
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 from litestar import Litestar, get, post, put
 from litestar.exceptions import NotFoundException
 
+from litestar import status_codes
+from random import choice
+
+
+def random_response_code():
+    code_name = choice(status_codes.__all__)
+    code = status_codes.__dict__[code_name]
+    return code, code_name
 
 @dataclass
 class TodoItem:
@@ -65,4 +73,23 @@ async def set_status(key: str, value: str) -> Dict[str, str]:
     return STATUS
 
 
-app = Litestar([get_list, add_item, update_item, get_status, set_status])
+@get("/get_teapot", status_code=status_codes.HTTP_418_IM_A_TEAPOT, media_type="application/problem+json")
+async def retrieve_resource() -> dict[str, Any]:
+    return {
+        "title": "This should return a 418 response",
+        "type": "Server delusion",
+        "status": status_codes.HTTP_418_IM_A_TEAPOT,
+    }
+
+
+@get("/get_random_response_code", media_type="application/problem+json")
+async def get_random_response_code() -> dict[str, Any]:
+    status_code, code_type = random_response_code()
+    return {
+        "title": f"This should return a random status code response. {code_type}",
+        "type": "Server delusion",
+        "status": status_code,
+    }
+
+handlers = [get_list, add_item, update_item, get_status, set_status, retrieve_resource, get_random_response_code]
+app = Litestar(handlers)

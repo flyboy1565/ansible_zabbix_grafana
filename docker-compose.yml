@@ -1,6 +1,18 @@
 version: '3.7'
 
 services:
+  webapp1:
+    build: "webapp/"
+    ports:
+       - "5001:8000"
+    volumes: ['./webapp:/app']
+
+  webapp2:
+    build: "webapp/"
+    ports:
+      - "5002:8000"
+    volumes: ['./webapp:/app']
+
   zabbix-server:
     image: ${ZABBIX_SERVER_IMAGE:-zabbix/zabbix-server-pgsql:ubuntu-6.4-latest}
     restart: unless-stopped

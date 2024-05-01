@@ -1,0 +1,38 @@
+---
+- name: Manage Zabbix host entries
+  hosts: localhost
+  gather_facts: false
+  vars:
+    zabbix_api_url: "http://localhost:8080/api_jsonrpc.php"
+    zabbix_user: "Admin"
+    zabbix_password: "zabbix"
+    zabbix_hostgroup: "Linux servers"
+    zabbix_template: "Template OS Linux"
+
+  tasks:
+    - name: Get hostgroup ID
+      uri:
+        url: "{{ zabbix_api_url }}"
+        method: POST
+        body_format: json
+        body: '{"jsonrpc":"2.0","method":"hostgroup.get","params":{"output":["groupid"],"filter":{"name":["{{ zabbix_hostgroup }}"]}},"auth":null,"id":1}'
+        headers:
+          Content-Type: "application/json-rpc"
+      register: hostgroup_result
+
+    - name: Debug VAR
+      debug:
+        var: hostgroup_result
+
+    - name: Create host entry
+      uri:
+        url: "{{ zabbix_api_url }}"
+        method: POST
+        body_format: json
+        body: '{"jsonrpc":"2.0","method":"host.create","params":{"host":"web-server","interfaces":[{"type":1,"main":1,"useip":1,"ip":"192.168.1.100","dns":""}],"groups":[{"groupid":"{{ hostgroup_result.json.result[0].groupid }}"}],"templates":[{"templateid":"{{ zabbix_template }}"}]},"auth":null,"id":1}'
+        headers:
+          Content-Type: "application/json-rpc"
+      register: host_create_result
+
+    - debug:
+        var: host_create_result.json

@@ -5,7 +5,11 @@ COPY . /app
 
 WORKDIR /app
 
-RUN pip install -e .
+RUN pip install -U pip
 
+RUN pip install -r requirements.txt
+
+RUN mkdir /tmp/ansible
+RUN chmod 777
 
 CMD ["litestar", "run", "--reload", "--host", "0.0.0.0"]
