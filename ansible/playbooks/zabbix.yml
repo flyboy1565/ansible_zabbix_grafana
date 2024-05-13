@@ -1,38 +1,44 @@
 ---
-- name: Manage Zabbix host entries
+- name: Setup Zabbix
   hosts: localhost
-  gather_facts: false
-  vars:
-    zabbix_api_url: "http://localhost:8080/api_jsonrpc.php"
-    zabbix_user: "Admin"
-    zabbix_password: "zabbix"
-    zabbix_hostgroup: "Linux servers"
-    zabbix_template: "Template OS Linux"
 
   tasks:
-    - name: Get hostgroup ID
-      uri:
-        url: "{{ zabbix_api_url }}"
-        method: POST
-        body_format: json
-        body: '{"jsonrpc":"2.0","method":"hostgroup.get","params":{"output":["groupid"],"filter":{"name":["{{ zabbix_hostgroup }}"]}},"auth":null,"id":1}'
-        headers:
-          Content-Type: "application/json-rpc"
-      register: hostgroup_result
+    - name: Set credentials to access Zabbix Server API
+      ansible.builtin.set_fact:
+        ansible_user: Admin
+        ansible_username: Admin
+        ansible_httpapi_pass: zabbix
+        ansible_network_os: community.zabbix.zabbix
+        ansible_connection: httpapi
+        ansible_httpapi_port: 8080
+        ansible_httpapi_use_ssl: false
+        ansible_httpapi_validate_certs: false
+        ansible_zabbix_url_path: ''  # If Zabbix WebUI runs on non-default (zabbix) path ,e.g. http://<FQDN>/zabbixeu
+        ansible_host: localhost
 
-    - name: Debug VAR
-      debug:
-        var: hostgroup_result
+    - name: Retrieve API information
+      # set task level variables as we change ansible_connection plugin here
+      community.zabbix.zabbix_api_info:
+      register: zbx_api_info
 
-    - name: Create host entry
-      uri:
-        url: "{{ zabbix_api_url }}"
-        method: POST
-        body_format: json
-        body: '{"jsonrpc":"2.0","method":"host.create","params":{"host":"web-server","interfaces":[{"type":1,"main":1,"useip":1,"ip":"192.168.1.100","dns":""}],"groups":[{"groupid":"{{ hostgroup_result.json.result[0].groupid }}"}],"templates":[{"templateid":"{{ zabbix_template }}"}]},"auth":null,"id":1}'
-        headers:
-          Content-Type: "application/json-rpc"
-      register: host_create_result
+    - name: Create Template
+      zabbix_template:
+#        template_name: "Template Webapps"
+        template_json: "{{ lookup('file', 'web_apps_template.json') }}"
+        state: present
 
-    - debug:
-        var: host_create_result.json
+    - name: Create Hosts
+      zabbix_host:
+        host_name: '{{item.hostname}}'
+        visible_name: "{{item.visible}}"
+        host_groups:
+          - Linux servers
+        status: enabled
+        state: present
+        inventory_mode: manual
+        link_templates:
+          - Template Webapps
+
+      with_items:
+        - {hostname: "webapp1", visible: "web-app-1"}
+        - {hostname: "webapp2", visible: "web-app-2"}

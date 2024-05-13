@@ -1,0 +1,43 @@
+{
+    "zabbix_export": {
+        "version": "6.4",
+        "template_groups": [
+            {
+                "uuid": "7df96b18c230490a9a0a9e2307226338",
+                "name": "Templates"
+            }
+        ],
+        "templates": [
+            {
+                "uuid": "d9fe530cab084226b88086580eecbaff",
+                "template": "Template Webapps",
+                "name": "Template Webapps",
+                "groups": [
+                    {
+                        "name": "Templates"
+                    }
+                ],
+                "items": [
+                    {
+                        "uuid": "976c86a1a0514d4197459bfa457e15c4",
+                        "name": "Random Status Code",
+                        "type": "HTTP_AGENT",
+                        "key": "http.random_code",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "url": "http://{HOST.HOST}:8000/get_random_response_code"
+                    },
+                    {
+                        "uuid": "eef12e2cfe5b45d0b5206aeed1e7107b",
+                        "name": "Root",
+                        "type": "HTTP_AGENT",
+                        "key": "http.webapp",
+                        "trends": "0",
+                        "value_type": "TEXT",
+                        "url": "http://{HOST.HOST}:8000/"
+                    }
+                ]
+            }
+        ]
+    }
+}

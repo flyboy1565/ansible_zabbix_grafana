@@ -5,6 +5,8 @@ COPY . /app
 
 WORKDIR /app
 
+#RUN apt-get update && apt-get upgrade && apt-get install -y curl
+
 RUN pip install -U pip
 
 RUN pip install -r requirements.txt

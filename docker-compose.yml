@@ -6,12 +6,16 @@ services:
     ports:
        - "5001:8000"
     volumes: ['./webapp:/app']
+    networks:
+      - network-zabbix
 
   webapp2:
     build: "webapp/"
     ports:
       - "5002:8000"
     volumes: ['./webapp:/app']
+    networks:
+      - network-zabbix
 
   zabbix-server:
     image: ${ZABBIX_SERVER_IMAGE:-zabbix/zabbix-server-pgsql:ubuntu-6.4-latest}
